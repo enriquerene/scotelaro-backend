@@ -19,6 +19,7 @@ class Usuario extends Authenticable
         'whatsapp',
         'senha',
         'email',
+        'data_validade_plano'
     ];
     protected $hidden = [
         'id',

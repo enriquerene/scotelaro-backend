@@ -10,6 +10,8 @@ class TurmaHorario extends Model
 {
     use HasFactory;
     protected $table = 'turma_horarios';
+    protected $fillable = ['turma_id', 'horario_id'];
+    public $timestamps = false;
     public function horario(): BelongsTo
     {
         return $this->belongsTo(Horario::class);

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Plano extends Model
@@ -25,6 +26,11 @@ class Plano extends Model
     public function planoTurmas(): HasMany
     {
         return $this->hasMany(PlanoTurma::class);
+    }
+
+    public function turmas(): BelongsToMany
+    {
+        return $this->belongsToMany(Turma::class, 'plano_turmas');
     }
 
 }

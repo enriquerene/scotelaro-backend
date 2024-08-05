@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('turmas', function (Blueprint $table) {
+        Schema::create('pagamentos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('usuario_id')->constrained('usuarios');
             $table->string('nome');
-            $table->foreignId('modalidade_id')->constrained('modalidades')->onDelete('restrict');
-            $table->integer('valor')->default(100);
+            $table->string('descricao')->nullable();
+            $table->integer('valor');
+            $table->string('metodo');
+            $table->string('dados_transacao');
+            $table->string('observacao')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('turmas');
+        Schema::dropIfExists('pagamentos');
     }
 };

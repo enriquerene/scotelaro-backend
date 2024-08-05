@@ -23,7 +23,7 @@ class AuthController extends Controller
             'senha' => 'required|min:8',
         ]);
         $data = $request->all();
-        $user = Usuario::where('whatsapp', $data['whatsapp'])->first();
+        $user = Usuario::with('plano')->where('whatsapp', $data['whatsapp'])->first();
         if (!$user || !Hash::check($data['senha'], $user->senha)) {
             $rest = new ResponseTemplate(401);
             $response = $rest->build(['message' => 'Credenciais inválidas']);
@@ -31,7 +31,7 @@ class AuthController extends Controller
         }
         $token = Token::where('usuario_uuid', $user->uuid)->first();
         if (!$token) {
-            $token = new AuthToken();
+            $token = new Token();
         }
         $token->autenticarUsuario($user->uuid);
         $user->defineToken($token->token);

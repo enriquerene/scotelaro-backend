@@ -18,8 +18,8 @@ class Horario extends Model
         'hora_fim',
     ];
 
-    public function turmaHorarios(): HasMany
+    public function turmas(): BelongsToMany
     {
-        return $this->hasMany(Turma::class);
+        return $this->belongsToMany(Turma::class, 'turma_horarios', 'horario_id', 'turma_id');
     }
 }

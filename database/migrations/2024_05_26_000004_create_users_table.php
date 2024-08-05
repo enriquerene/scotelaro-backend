@@ -23,6 +23,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->unsignedBigInteger('plano_id')->nullable();
             $table->date('data_validade_plano')->nullable();
+            $table->string('turmas_experimentais_id')->nullable();
             $table->timestamps();
 
             $table->foreign('plano_id')->references('id')->on('planos')->onDelete('restrict');

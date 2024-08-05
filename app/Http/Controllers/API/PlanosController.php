@@ -20,7 +20,7 @@ class PlanosController extends Controller
      */
     public function listar(): JsonResponse
     {
-        $planos = Plano::all();
+        $planos = Plano::with('turmas')->get();
         if ($planos->isEmpty()) {
             $rest = new ResponseTemplate(404);
             $response = $rest->build(['message' => 'Nenhum plano cadastrado.']);
@@ -40,9 +40,9 @@ class PlanosController extends Controller
         $dados = $request->all();
         $regras = [
             'nome' => 'required|string',
-            'descricao' => 'required|string',
+            'descricao' => 'nullable|string',
             'valor' => 'required|numeric',
-            'id_turmas' => 'required',
+            'id_turmas' => 'required|string',
         ];
         $validador = Validator::make($dados, $regras);
         if ($validador->fails()) {
@@ -60,7 +60,7 @@ class PlanosController extends Controller
         );
         $turmas = Turma::whereIn('id', $idsTurmas)->get();
         try {
-            DB::transaction(function () use ($turmas, $request) {
+            $plano = DB::transaction(function () use ($turmas, $request) {
                 $plano = Plano::create([
                     'nome' => $request->get('nome'),
                     'descricao' => $request->get('descricao'),
@@ -68,9 +68,11 @@ class PlanosController extends Controller
                 ]);
 
                 $plano->turmas()->attach($turmas);
+                return $plano;
             });
 
-            $resultado = Turma::where('nome', $request->get('nome'))->first();
+//            $resultado = Turma::where('nome', $request->get('nome'))->first();
+            $resultado = Plano::with(['turmas'])->find($plano->id);
             if ($resultado) {
                 $rest = new ResponseTemplate(201);
                 $response = $rest->build();
@@ -89,9 +91,17 @@ class PlanosController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function detalhar(string $id)
     {
-        //
+        $plano = Plano::with('turmas')->find($id);
+        if ($plano->isEmpty()) {
+            $rest = new ResponseTemplate(404);
+            $response = $rest->build(['message' => 'Nenhum plano cadastrado.']);
+            return response()->json($response, $rest->getStatus()['code']);
+        }
+        $rest = new ResponseTemplate(200);
+        $response = $rest->build($plano->toArray());
+        return response()->json($response, $rest->getStatus()['code']);
     }
 
     /**
