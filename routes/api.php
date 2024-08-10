@@ -5,6 +5,7 @@ use App\Http\Controllers\API\HorariosController;
 use App\Http\Controllers\API\ModalidadesController;
 use App\Http\Controllers\API\PlanosController;
 use App\Http\Controllers\API\TurmasController;
+use App\Http\Controllers\API\UsuariosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -41,7 +42,7 @@ Route::prefix('planos')->group(function () {
 });
 
 Route::prefix('usuarios')->middleware('auth.utoken')->group(function () {
-    Route::post('plano/{id}/inscrever')->name('usuario.plano.inscrever');
-    Route::post('plano/{id}/cancelar')->name('usuario.plano.cancelar');
+    Route::post('plano/inscrever', [UsuariosController::class, 'inscricaoEmPlano'])->name('usuario.plano.inscrever');
+    Route::post('plano/cancelar', [UsuariosController::class, 'cancelarPlano'])->name('usuario.plano.cancelar');
     Route::post('turma/{id}/experimentar')->name('usuario.turma.experimentar');
 });

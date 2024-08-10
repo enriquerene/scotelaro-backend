@@ -15,14 +15,14 @@ return new class extends Migration
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
-            $table->uuid()->default(DB::raw('UUID()'))->unique();
+            $table->char('uuid', 36)->default(DB::raw('UUID()'))->unique();
             $table->string('whatsapp')->unique();
             $table->string('senha');
             $table->timestamp('whatsapp_verificado_em')->nullable();
             $table->string('email')->nullable();
             $table->rememberToken();
             $table->unsignedBigInteger('plano_id')->nullable();
-            $table->date('data_validade_plano')->nullable();
+            $table->date('data_inscricao_plano')->nullable();
             $table->string('turmas_experimentais_id')->nullable();
             $table->timestamps();
 

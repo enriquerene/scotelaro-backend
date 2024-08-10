@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('auth_tokens', function (Blueprint $table) {
             $table->id();
-            $table->uuid('usuario_uuid');
+            $table->char('usuario_uuid', 36);
             $table->string('token', 64)->nullable();
             $table->dateTime('expira_em')->nullable();
             $table->timestamps();
