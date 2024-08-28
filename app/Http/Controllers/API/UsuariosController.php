@@ -17,7 +17,7 @@ class UsuariosController extends Controller
      */
     public function inscricaoEmPlano(Request $request): JsonResponse
     {
-        $planoId = (int) $request->get('id');
+        $planoId = (int) $request->input('id');
         if (!Plano::where('id', $planoId)->exists()) {
             $rest = new ResponseTemplate(404);
             $response = $rest->build(['message' => 'O plano requisitado não existe.']);
@@ -33,6 +33,8 @@ class UsuariosController extends Controller
             return response()->json($response, $rest->getStatus()['code']);
         }
 
+        $usuario->load('plano');
+        $usuario->plano->load('turmas');
         $rest = new ResponseTemplate(200);
         $response = $rest->build($usuario->toArray());
         return response()->json($response, $rest->getStatus()['code']);
@@ -59,6 +61,7 @@ class UsuariosController extends Controller
             return response()->json($response, $rest->getStatus()['code']);
         }
 
+        $usuario->load('plano');
         $rest = new ResponseTemplate(200);
         $response = $rest->build($usuario->toArray());
         return response()->json($response, $rest->getStatus()['code']);

@@ -16,20 +16,15 @@ class PlanosSeeder extends Seeder
         $table = DB::table('planos');
         if ($table->count() === 0) {
             $table->insert([
-                ['nome' => 'Plano Boxe Noite', 'valor' => 100],
-                ['nome' => 'Plano Muay Thai Manhã', 'valor' => 110],
-                ['nome' => 'Plano Muay Thai Noite', 'valor' => 110],
-                ['nome' => 'Plano Muay Thai Manhã e Noite', 'valor' => 180],
-                ['nome' => 'Plano MMA Noite', 'valor' => 120],
-                ['nome' => 'Plano Muay Thai Manhã e Boxe Noite', 'valor' => 180],
-                ['nome' => 'Plano Muay Thai Noite e Boxe Noite', 'valor' => 180],
-                ['nome' => 'Plano Muay Thai Manhã e Luta Livre Manhã', 'valor' => 180],
-                ['nome' => 'Plano Muay Thai Manhã e Luta Livre Noite', 'valor' => 180],
-                ['nome' => 'Plano Muay Thai Noite e Luta Livre Manhã', 'valor' => 180],
-                ['nome' => 'Plano Muay Thai Noite e Luta Livre Noite', 'valor' => 180],
-                ['nome' => 'Plano Muay Thai Manhã e MMA Noite', 'valor' => 200],
-                ['nome' => 'Plano Muay Thai Noite e MMA Noite', 'valor' => 200],
-                ['nome' => 'Plano Todas as Modalidades', 'valor' => 230],
+                ['nome' => 'Plano Boxe Noite', 'valor' => 100, 'descricao' => 'Este plano permite participar da turma de Boxe Noite.'],
+                ['nome' => 'Plano Muay Thai Manhã', 'valor' => 110, 'descricao' => 'Este plano permite participar da turma de Muay Thai Manhã.'],
+                ['nome' => 'Plano Muay Thai Noite', 'valor' => 110, 'descricao' => 'Este plano permite participar da turma de Muay Thai Noite.'],
+                ['nome' => 'Plano Muay Thai Manhã e Noite', 'valor' => 180, 'descricao' => 'Este plano permite participar das turmas de Muay Thai Manhã e Noite.'],
+                ['nome' => 'Plano MMA Noite', 'valor' => 120, 'descricao' => 'Este plano permite participar da turma de MMA Noite.'],
+                ['nome' => 'Plano Muay e Thai Boxe', 'valor' => 180, 'descricao' => 'Este plano permite participar das turmas de Muay Thai e Boxe.'],
+                ['nome' => 'Plano Muay e Luta Livre', 'valor' => 180, 'descricao' => 'Este plano permite participar das turmas de Muay Thai e Luta Livre.'],
+                ['nome' => 'Plano Muay Thai e MMA', 'valor' => 200, 'descricao' => 'Este plano permite participar das turmas de Muay Thai e MMA.'],
+                ['nome' => 'Plano Todas as Modalidades', 'valor' => 230, 'descricao' => 'Este plano permite participar de todas as turmas.'],
             ]);
         }
     }

@@ -36,6 +36,9 @@ class AuthController extends Controller
         $token->autenticarUsuario($user->uuid);
         $user->defineToken($token->token);
         $rest = new ResponseTemplate(200);
+        if ($user->plano) {
+            $user->plano->load('turmas');
+        }
         $response = $rest->build($user->toArray());
         return response()->json($response, $rest->getStatus()['code']);
     }

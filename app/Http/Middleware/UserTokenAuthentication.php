@@ -6,6 +6,7 @@ use App\Models\AuthToken;
 use App\Models\Usuario;
 use Carbon\Carbon;
 use Closure;
+use Exception;
 use Illuminate\Http\Request;
 use RESTfulTemplate\ResponseTemplate;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,8 +16,8 @@ class UserTokenAuthentication
     /**
      * Handle an incoming request.
      *
-     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
-     * @throws \Exception
+     * @param Closure(Request): (Response) $next
+     * @throws Exception
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -44,6 +45,7 @@ class UserTokenAuthentication
             $response = $rest->build(['message' => 'Nenhum usuário vinculado ao token de autenticação fornecido.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
+        $usuario->defineToken($utoken);
         $request->attributes->set('usuario', $usuario);
         return $next($request);
     }
