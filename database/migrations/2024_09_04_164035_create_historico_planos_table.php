@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('planos', function (Blueprint $table) {
+        Schema::create('historico_planos', function (Blueprint $table) {
             $table->id();
-            $table->string('nome');
-            $table->integer('valor');
-            $table->text('descricao')->nullable();
-            $table->string('link_pagamento')->nullable();
-            $table->string('link_contrato')->nullable();
+            $table->foreignId('usuario_id')->constrained('usuarios');
+            $table->foreignId('plano_id')->constrained('planos');
+            $table->date('data_inscricao');
+            $table->date('data_cancelamento')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('planos');
+        Schema::dropIfExists('historico_planos');
     }
 };

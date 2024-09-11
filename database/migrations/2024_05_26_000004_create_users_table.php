@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('usuarios', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
-            $table->char('uuid', 36)->default(DB::raw('UUID()'))->unique();
+            $table->char('uuid', 36)->unique(); // create trigger manualy in db to insert UUID
             $table->string('whatsapp')->unique();
             $table->string('senha');
             $table->timestamp('whatsapp_verificado_em')->nullable();

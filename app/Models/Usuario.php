@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Usuario extends Authenticable
 {
@@ -47,5 +49,20 @@ class Usuario extends Authenticable
     public function plano(): BelongsTo
     {
         return $this->belongsTo(Plano::class);
+    }
+
+    public function historicoPlanos(): HasMany
+    {
+        return $this->hasMany(HistoricoPlanos::class);
+    }
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->uuid) {
+                $model->uuid = Str::uuid()->toString();
+            }
+        });
     }
 }
