@@ -1,66 +1,251 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# FightGym API (Laravel/PHP Edition)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**A Hexagonal Architecture (Ports & Adapters) Boilerplate for Martial Arts Gym Management**
 
-## About Laravel
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4) ![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20) ![Architecture](https://img.shields.io/badge/Architecture-Hexagonal-orange) ![API](https://img.shields.io/badge/API-REST%20%26%20GraphQL-blue)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🥊 Project Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**FightGym API** is a robust backend system designed to manage the operations of a combat sports academy (BJJ, Muay Thai, MMA).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+This project treats **Laravel** not as the "whole application," but strictly as the **Infrastructure Layer**. The core business logic is decoupled from the framework, allowing the domain to evolve independently of the underlying HTTP delivery mechanism (REST or GraphQL) or database ORM.
 
-## Learning Laravel
+### Key Features
+*   **Role-Based Access:** Distinct capabilities for **Athletes**, **Coaches**, and **Admins**.
+*   **Dual API Exposure:** Fully functional REST API and GraphQL Endpoint.
+*   **Training Tracker:** Class check-ins, frequency calculation, and history logs.
+*   **Progression System:** Belt management, stripe grading, and sparring reviews.
+*   **Financial Hub:** Subscription plans, payment history, and payment gateway integration.
+*   **Gym Board:** Scheduled events, seminars, and push notifications.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## ⬡ Architecture: The Hexagon
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+We strictly separate the **Framework** (Laravel) from the **Domain** (Business Rules).
 
-## Laravel Sponsors
+1.  **Domain Layer (Pure PHP):**
+    *   Contains Entities, Value Objects, and Domain Services.
+    *   **Rule:** No `Illuminate\` (Laravel) dependencies allowed here. No Eloquent.
+2.  **Application Layer (Use Cases):**
+    *   Orchestrates the flow of data.
+    *   Defines **Ports** (Interfaces) for Repositories and External Services.
+    *   **Rule:** Can use Collections or DTOs, but no HTTP/Controller logic.
+3.  **Infrastructure Layer (Laravel):**
+    *   **Driving Adapters:** HTTP Controllers (REST), GraphQL Resolvers (Lighthouse), Artisan Commands.
+    *   **Driven Adapters:** Eloquent Repositories, Mailables, Jobs, Payment Gateways.
+    *   **Rule:** This is where the framework lives.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Data Flow
+`Request` → `Laravel Controller / GraphQL Resolver` → `Application Use Case` → `Domain Entity` → `Repository Implementation (Eloquent)` → `Database`
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## 📂 Directory Structure
 
-## Contributing
+We utilize a custom namespace structure. The `src/` directory holds the hexagon, while standard Laravel folders act as the infrastructure wiring.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```text
+root/
+├── app/                        # Infrastructure Layer (Laravel Framework)
+│   ├── Http/
+│   │   ├── Controllers/        # REST Adapters
+│   │   └── Middleware/
+│   ├── GraphQL/                # GraphQL Schema & Resolvers (Lighthouse)
+│   ├── Models/                 # Eloquent Models (DB Schema representation only)
+│   └── Providers/              # DI Binding (binds Ports to Adapters)
+│
+├── src/                        # The Core Hexagon (Mapped in composer.json)
+│   ├── Domain/                 # Pure Business Logic
+│   │   ├── Identity/           # Users, Roles, Auth
+│   │   ├── Training/           # Classes, Attendance, Schedules
+│   │   ├── Finance/            # Payments, Subscriptions
+│   │   └── Shared/             # Value Objects (Email, UUID, Money)
+│   │
+│   ├── Application/            # Use Cases & Port Definitions
+│   │   ├── Identity/
+│   │   ├── Training/
+│   │   │   ├── UseCases/       # e.g. CheckInAthlete.php
+│   │   │   └── Ports/          # e.g. AttendanceRepositoryInterface.php
+│   │   └── Finance/
+│   │
+│   └── Infrastructure/         # Framework-Agnostic Implementations
+│       ├── Persistence/        # Repository Implementations using Eloquent
+│       └── Services/           # e.g. StripePaymentService
+│
+├── tests/
+│   ├── Unit/                   # Tests src/Domain (Fast, no DB)
+│   └── Feature/                # Tests app/Http (Slow, hits DB)
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🥋 Roles & Permissions (RBAC)
 
-## Security Vulnerabilities
+Access is controlled via Laravel **Gates/Policies** resolving to Domain Roles.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Role | Scope | Capabilities |
+| :--- | :--- | :--- |
+| **Athlete** | `user` | View own profile, check into scheduled classes, view own payments, receive notifications. |
+| **Coach** | `staff` | Manage assigned classes, validate student attendance, promote students (grade belts), view roster. |
+| **Admin** | `root` | Full system access. Manage subscriptions, financials, create users, global announcements. |
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🔌 API Documentation
+
+### 1. REST API
+Standard JSON:API compliant endpoints.
+
+*   **Endpoint:** `/api/v1/...`
+*   **Auth:** Bearer Token (Sanctum/Passport)
+
+**Example: Check-in to a class**
+```http
+POST /api/v1/classes/{id}/check-in
+Content-Type: application/json
+
+{
+    "athlete_id": "uuid-v4",
+    "coordinates": "40.712,-74.006"
+}
+```
+
+### 2. GraphQL
+Powered by [Lighthouse PHP](https://lighthouse-php.com/).
+
+*   **Endpoint:** `/graphql`
+*   **Playground:** `/graphiql` (Dev only)
+
+**Example: Fetch User History**
+```graphql
+query GetAthleteHistory {
+  athlete(id: "uuid-v4") {
+    name
+    currentBelt
+    attendance(limit: 5) {
+      classDate
+      instructor { name }
+      technique
+    }
+    payments(status: PENDING) {
+      amount
+      dueDate
+    }
+  }
+}
+```
+
+---
+
+## 💻 Code Examples
+
+### The Port (Interface)
+Located in `src/Application/Training/Ports/AttendanceRepositoryInterface.php`:
+```php
+namespace Core\Application\Training\Ports;
+
+use Core\Domain\Training\Entities\Attendance;
+
+interface AttendanceRepositoryInterface {
+    public function save(Attendance $attendance): void;
+    public function exists(string $athleteId, string $classId): bool;
+}
+```
+
+### The Adapter (Eloquent Implementation)
+Located in `src/Infrastructure/Persistence/EloquentAttendanceRepository.php`:
+```php
+namespace Core\Infrastructure\Persistence;
+
+use Core\Application\Training\Ports\AttendanceRepositoryInterface;
+use Core\Domain\Training\Entities\Attendance as DomainAttendance;
+use App\Models\Attendance as EloquentModel; // Laravel Model
+
+class EloquentAttendanceRepository implements AttendanceRepositoryInterface {
+    public function save(DomainAttendance $attendance): void {
+        EloquentModel::updateOrCreate(
+            ['id' => $attendance->getId()],
+            $attendance->toArray()
+        );
+    }
+    // ...
+}
+```
+
+### Dependency Injection (Laravel Service Provider)
+Located in `app/Providers/RepositoryServiceProvider.php`:
+```php
+public function register(): void {
+    $this->app->bind(
+        \Core\Application\Training\Ports\AttendanceRepositoryInterface::class,
+        \Core\Infrastructure\Persistence\EloquentAttendanceRepository::class
+    );
+}
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+*   PHP 8.2+
+*   Composer
+*   Docker & Laravel Sail (Recommended)
+
+### Installation
+
+1.  **Clone & Install Dependencies**
+    ```bash
+    git clone https://github.com/your-org/fight-gym-api.git
+    cd fight-gym-api
+    composer install
+    ```
+
+2.  **Environment Setup**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+
+3.  **Start Containers (Sail)**
+    ```bash
+    ./vendor/bin/sail up -d
+    ```
+
+4.  **Run Migrations & Seeders**
+    ```bash
+    ./vendor/bin/sail artisan migrate --seed
+    ```
+
+5.  **Access**
+    *   API: `http://localhost/api`
+    *   GraphiQL: `http://localhost/graphiql`
+
+## 🧪 Testing Strategy
+
+We separate tests based on the Hexagonal layers:
+
+1.  **Unit Tests (`tests/Unit`)**:
+    *   Target: `src/Domain` and `src/Application`.
+    *   Mocks: Repositories are mocked.
+    *   Speed: Very Fast (No DB connection).
+    ```bash
+    ./vendor/bin/sail test --testsuite=Unit
+    ```
+
+2.  **Feature Tests (`tests/Feature`)**:
+    *   Target: `app/Http` (Controllers/Resolvers) and `src/Infrastructure` (Repositories).
+    *   Real DB: Uses a testing database (SQLite/Postgres).
+    *   Verifies that Laravel wiring works correctly.
+    ```bash
+    ./vendor/bin/sail test --testsuite=Feature
+    ```
+
+---
+
+## 📜 Contributing
+
+1.  **Domain First:** Always write the business logic in `src/Domain` before writing the Controller.
+2.  **Strict Typing:** PHP 8.2 strict typing is enforced.
+3.  **Commit Message:** Use Conventional Commits (feat, fix, chor, refactor).
