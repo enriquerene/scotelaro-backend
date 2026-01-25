@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Horario;
-use App\Models\TurmaHorario;
+use Core\Application\Training\UseCases\ListTrainingClasses;
+use App\Models\Turma;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use RESTfulTemplate\ResponseTemplate;
-use App\Models\Turma;
 
 class TurmasController extends Controller
 {
+    private ListTrainingClasses $listTrainingClasses;
+
+    public function __construct(ListTrainingClasses $listTrainingClasses)
+    {
+        $this->listTrainingClasses = $listTrainingClasses;
+    }
 
     /**
      * Display a listing of the resource.
@@ -21,14 +26,14 @@ class TurmasController extends Controller
      */
     public function listar(): JsonResponse
     {
-        $turmas = Turma::with(['horarios', 'modalidade'])->get();
-        if ($turmas->isEmpty()) {
+        $turmas = $this->listTrainingClasses->execute();
+        if (empty($turmas)) {
             $rest = new ResponseTemplate(404);
             $response = $rest->build(['message' => 'Nenhuma Turma cadastrada.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
         $rest = new ResponseTemplate(200);
-        $response = $rest->build($turmas->toArray());
+        $response = $rest->build($turmas);
         return response()->json($response, $rest->getStatus()['code']);
     }
 

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Core\Application\Training\UseCases\ListTrainingTypes;
+use Core\Application\Training\UseCases\CreateTrainingType;
+use Core\Application\Training\Ports\TrainingTypeRepositoryInterface;
 use App\Models\Modalidade;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,19 +15,33 @@ use RESTfulTemplate\ResponseTemplate;
 
 class ModalidadesController extends Controller
 {
+    private ListTrainingTypes $listTrainingTypes;
+    private CreateTrainingType $createTrainingType;
+    private TrainingTypeRepositoryInterface $repository;
+
+    public function __construct(
+        ListTrainingTypes $listTrainingTypes,
+        CreateTrainingType $createTrainingType,
+        TrainingTypeRepositoryInterface $repository
+    ) {
+        $this->listTrainingTypes = $listTrainingTypes;
+        $this->createTrainingType = $createTrainingType;
+        $this->repository = $repository;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function listar(): JsonResponse
     {
-        $modalidades = Modalidade::all();
-        if ($modalidades->isEmpty()) {
+        $modalidades = $this->listTrainingTypes->execute();
+        if (empty($modalidades)) {
             $rest = new ResponseTemplate(404);
             $response = $rest->build(['message' => 'Nenhuma Modalidade cadastrada.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
         $rest = new ResponseTemplate(200);
-        $response = $rest->build($modalidades->toArray());
+        $response = $rest->build($modalidades);
         return response()->json($response, $rest->getStatus()['code']);
     }
 
@@ -45,17 +62,10 @@ class ModalidadesController extends Controller
             return Response::json($response, $rest->getStatus()['code']);
         }
 
-        $modalidade = new Modalidade();
-        $modalidade->nome = $dados['nome'];
-        $modalidade->descricao = $dados['descricao'];
+        $modalidade = $this->createTrainingType->execute($dados);
 
-        if ($modalidade->save()) {
-            $rest = new ResponseTemplate(201);
-            $response = $rest->build(['modalidade' => $modalidade]);
-            return response()->json($response, $rest->getStatus()['code']);
-        }
-        $rest = new ResponseTemplate(500);
-        $response = $rest->build(['message' => 'Falha ao cadastrar.']);
+        $rest = new ResponseTemplate(201);
+        $response = $rest->build(['modalidade' => $modalidade->toArray()]);
         return response()->json($response, $rest->getStatus()['code']);
     }
 
@@ -68,16 +78,23 @@ class ModalidadesController extends Controller
         if ($request->hasFile('imagem')) {
             $imagem = $request->file('imagem');
             $path = $imagem->store('modalidades', 'public');
-            $modalidade = Modalidade::find($id);
-            $modalidade->imagem_destacada = $path;
-            if ($modalidade->save()) {
+            $trainingType = $this->repository->findById((int)$id);
+            if ($trainingType) {
+                $updatedTrainingType = new TrainingType(
+                    $trainingType->getName(),
+                    $trainingType->getDescription(),
+                    $path,
+                    $trainingType->getId()
+                );
+                $this->repository->save($updatedTrainingType);
+
                 $rest = new ResponseTemplate(200);
-                $response = $rest->build(['modalidade' => $modalidade]);
+                $response = $rest->build(['modalidade' => $updatedTrainingType->toArray()]);
                 return response()->json($response, $rest->getStatus()['code']);
             }
 
-            $rest = new ResponseTemplate(500);
-            $response = $rest->build(['message' => 'Falha ao anexar imagem na modalidade.']);
+            $rest = new ResponseTemplate(404);
+            $response = $rest->build(['message' => 'Modalidade não encontrada.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
 
@@ -112,17 +129,23 @@ class ModalidadesController extends Controller
             return Response::json($response, $rest->getStatus()['code']);
         }
 
-        $modalidade = Modalidade::where('id', $id)->first();
-        $modalidade->nome = $dados['nome'] ?? $modalidade->nome;
-        $modalidade->descricao = $dados['descricao'] ?? $modalidade->descricao;
+        $trainingType = $this->repository->findById((int)$id);
+        if ($trainingType) {
+            $updatedTrainingType = new TrainingType(
+                $dados['nome'] ?? $trainingType->getName(),
+                $dados['descricao'] ?? $trainingType->getDescription(),
+                $trainingType->getFeaturedImage(),
+                $trainingType->getId()
+            );
+            $this->repository->save($updatedTrainingType);
 
-        if ($modalidade->save()) {
             $rest = new ResponseTemplate(200);
-            $response = $rest->build(['modalidade' => $modalidade]);
+            $response = $rest->build(['modalidade' => $updatedTrainingType->toArray()]);
             return response()->json($response, $rest->getStatus()['code']);
         }
-        $rest = new ResponseTemplate(500);
-        $response = $rest->build(['message' => 'Falha ao atualizar.']);
+
+        $rest = new ResponseTemplate(404);
+        $response = $rest->build(['message' => 'Modalidade não encontrada.']);
         return response()->json($response, $rest->getStatus()['code']);
     }
 

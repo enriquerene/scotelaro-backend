@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Core\Application\Training\UseCases\ListSchedules;
 use App\Models\Horario;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,20 +14,27 @@ use Illuminate\Http\JsonResponse;
 
 class HorariosController extends Controller
 {
+    private ListSchedules $listSchedules;
+
+    public function __construct(ListSchedules $listSchedules)
+    {
+        $this->listSchedules = $listSchedules;
+    }
+
     /**
      * Display a listing of the resource.
      * @throws Exception
      */
     public function listar(): JsonResponse
     {
-        $horarios = Horario::with('turmas')->get();
-        if ($horarios->isEmpty()) {
+        $horarios = $this->listSchedules->execute();
+        if (empty($horarios)) {
             $rest = new ResponseTemplate(404);
             $response = $rest->build(['message' => 'Nenhuma Horario cadastrado.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
         $rest = new ResponseTemplate(200);
-        $response = $rest->build($horarios->toArray());
+        $response = $rest->build($horarios);
         return response()->json($response, $rest->getStatus()['code']);
     }
 

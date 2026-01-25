@@ -3,16 +3,30 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\AuthToken as Token;
-use App\Models\Usuario;
+use Core\Application\Identity\UseCases\LoginUser;
+use Core\Application\Identity\UseCases\RegisterUser;
+use Core\Application\Identity\Ports\AuthenticationServiceInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use RESTfulTemplate\ResponseTemplate;
 
 class AuthController extends Controller
 {
+    private LoginUser $loginUser;
+    private RegisterUser $registerUser;
+    private AuthenticationServiceInterface $authService;
+
+    public function __construct(
+        LoginUser $loginUser,
+        RegisterUser $registerUser,
+        AuthenticationServiceInterface $authService
+    ) {
+        $this->loginUser = $loginUser;
+        $this->registerUser = $registerUser;
+        $this->authService = $authService;
+    }
+
     /**
      * @throws Exception
      */
@@ -22,25 +36,23 @@ class AuthController extends Controller
             'whatsapp' => 'required|digits:11',
             'senha' => 'required|min:8',
         ]);
-        $data = $request->all();
-        $user = Usuario::with('plano')->where('whatsapp', $data['whatsapp'])->first();
-        if (!$user || !Hash::check($data['senha'], $user->senha)) {
-            $rest = new ResponseTemplate(401);
-            $response = $rest->build(['message' => 'Credenciais inválidas']);
+
+        try {
+            $result = $this->loginUser->execute($request->whatsapp, $request->senha);
+            $user = $result['user'];
+            $token = $result['token'];
+
+            $userData = $user->toArray();
+            $userData['token'] = $token;
+
+            $rest = new ResponseTemplate(200);
+            $response = $rest->build($userData);
+            return response()->json($response, $rest->getStatus()['code']);
+        } catch (Exception $e) {
+            $rest = new ResponseTemplate($e->getCode() ?: 401);
+            $response = $rest->build(['message' => $e->getMessage()]);
             return response()->json($response, $rest->getStatus()['code']);
         }
-        $token = Token::where('usuario_uuid', $user->uuid)->first();
-        if (!$token) {
-            $token = new Token();
-        }
-        $token->autenticarUsuario($user->uuid);
-        $user->defineToken($token->token);
-        $rest = new ResponseTemplate(200);
-        if ($user->plano) {
-            $user->plano->load('turmas');
-        }
-        $response = $rest->build($user->toArray());
-        return response()->json($response, $rest->getStatus()['code']);
     }
 
     /**
@@ -53,21 +65,17 @@ class AuthController extends Controller
             'whatsapp' => 'required|digits:11',
             'senha' => 'required|min:8',
         ]);
-        $data = $request->all();
-        $user = Usuario::where('whatsapp', $data['whatsapp'])->first();
-        if ($user) {
-            $rest = new ResponseTemplate(400);
-            $response = $rest->build(['message' => 'Usuário já registrado']);
+
+        try {
+            $user = $this->registerUser->execute($request->all());
+            $rest = new ResponseTemplate(200);
+            $response = $rest->build($user->toArray());
+            return response()->json($response, $rest->getStatus()['code']);
+        } catch (Exception $e) {
+            $rest = new ResponseTemplate($e->getCode() ?: 400);
+            $response = $rest->build(['message' => $e->getMessage()]);
             return response()->json($response, $rest->getStatus()['code']);
         }
-        $user = new Usuario();
-        $user->nome = $data['nome'];
-        $user->senha = $data['senha'];
-        $user->whatsapp = $data['whatsapp'];
-        $user->save();
-        $rest = new ResponseTemplate(200);
-        $response = $rest->build($user->toArray());
-        return response()->json($response, $rest->getStatus()['code']);
     }
 
     /**
@@ -78,20 +86,9 @@ class AuthController extends Controller
         $request->validate([
             'uuid' => 'required|string'
         ]);
-        $uuid = $request->uuid;
-        $user = Usuario::where('uuid', $uuid)->first();
-        if (!$user) {
-            $rest = new ResponseTemplate(404);
-            $response = $rest->build(['message' => 'Usuário não encontrado']);
-            return response()->json($response, $rest->getStatus()['code']);
-        }
-        $token = Token::where('usuario_uuid', $uuid)->first();
-        if (!$token) {
-            $rest = new ResponseTemplate(401);
-            $response = $rest->build(['message' => 'Token inválido']);
-            return response()->json($response, $rest->getStatus()['code']);
-        }
-        $token->limparAutenticacao();
+
+        $this->authService->logout($request->uuid);
+
         $rest = new ResponseTemplate(200);
         $response = $rest->build(['message' => 'Logout bem sucedido']);
         return response()->json($response, $rest->getStatus()['code']);

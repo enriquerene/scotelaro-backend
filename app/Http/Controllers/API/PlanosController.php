@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Core\Application\Finance\UseCases\ListPlans;
 use App\Models\Plano;
 use App\Models\Turma;
 use Exception;
@@ -15,19 +16,26 @@ use RESTfulTemplate\ResponseTemplate;
 
 class PlanosController extends Controller
 {
+    private ListPlans $listPlans;
+
+    public function __construct(ListPlans $listPlans)
+    {
+        $this->listPlans = $listPlans;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function listar(): JsonResponse
     {
-        $planos = Plano::with('turmas')->get();
-        if ($planos->isEmpty()) {
+        $planos = $this->listPlans->execute();
+        if (empty($planos)) {
             $rest = new ResponseTemplate(404);
             $response = $rest->build(['message' => 'Nenhum plano cadastrado.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
         $rest = new ResponseTemplate(200);
-        $response = $rest->build($planos->toArray());
+        $response = $rest->build($planos);
         return response()->json($response, $rest->getStatus()['code']);
     }
 
