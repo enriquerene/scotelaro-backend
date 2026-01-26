@@ -17,10 +17,12 @@ public_html/hot
 
 storage/*.key
 .env
+.env*
 Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
 
 .output.txt
+output.txt
 .idea
