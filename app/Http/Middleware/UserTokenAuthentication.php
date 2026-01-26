@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use App\Models\AuthToken;
-use App\Models\Usuario;
 use Carbon\Carbon;
 use Closure;
+use FightGym\Application\Identity\Ports\UserRepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
 use RESTfulTemplate\ResponseTemplate;
@@ -13,9 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserTokenAuthentication
 {
+    public function __construct(
+        private UserRepositoryInterface $userRepository
+    ) {
+    }
+
     /**
-     * Handle an incoming request.
-     *
      * @param Closure(Request): (Response) $next
      * @throws Exception
      */
@@ -27,26 +30,30 @@ class UserTokenAuthentication
             $response = $rest->build(['message' => 'Requisição sem parâmetro de autenticação.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
+
         $utoken = substr($authorizationHeader, 7);
         $authToken = AuthToken::where('token', $utoken)->first();
+
         if (!$authToken) {
             $rest = new ResponseTemplate(400);
             $response = $rest->build(['message' => 'Token de autenticação inválido ou inexistente.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
-        if ($authToken->expira_em < Carbon::now()) {
+
+        if ($authToken->expira_em && $authToken->expira_em < Carbon::now()) {
             $rest = new ResponseTemplate(400);
             $response = $rest->build(['message' => 'Token de autenticação expirado. Faça login novamente.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
-        $usuario = Usuario::where('uuid', $authToken->usuario_uuid)->first();
-        if (!$usuario) {
+
+        $user = $this->userRepository->findByUuid($authToken->usuario_uuid);
+        if (!$user) {
             $rest = new ResponseTemplate(400);
             $response = $rest->build(['message' => 'Nenhum usuário vinculado ao token de autenticação fornecido.']);
             return response()->json($response, $rest->getStatus()['code']);
         }
-        $usuario->defineToken($utoken);
-        $request->attributes->set('usuario', $usuario);
+
+        $request->attributes->set('usuario', $user);
         return $next($request);
     }
 }

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Core\Application\Training\UseCases\ListTrainingTypes;
-use Core\Application\Training\UseCases\CreateTrainingType;
-use Core\Application\Training\Ports\TrainingTypeRepositoryInterface;
+use FightGym\Application\Training\UseCases\ListTrainingTypes;
+use FightGym\Application\Training\UseCases\CreateTrainingType;
+use FightGym\Application\Training\Ports\TrainingTypeRepositoryInterface;
 use App\Models\Modalidade;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

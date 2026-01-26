@@ -10,30 +10,34 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         // Identity
         $this->app->bind(
-            \Core\Application\Identity\Ports\UserRepositoryInterface::class,
-            \Core\Infrastructure\Persistence\EloquentUserRepository::class
+            \FightGym\Application\Identity\Ports\UserRepositoryInterface::class,
+            \FightGym\Infrastructure\Persistence\EloquentUserRepository::class
         );
         $this->app->bind(
-            \Core\Application\Identity\Ports\AuthenticationServiceInterface::class,
-            \Core\Infrastructure\Services\LaravelAuthenticationService::class
+            \FightGym\Application\Identity\Ports\AuthenticationServiceInterface::class,
+            \FightGym\Infrastructure\Services\LaravelAuthenticationService::class
+        );
+        $this->app->bind(
+            \FightGym\Application\Identity\Ports\PasswordHasherInterface::class,
+            \FightGym\Infrastructure\Services\LaravelPasswordHasher::class
         );
         // Training
         $this->app->bind(
-            \Core\Application\Training\Ports\TrainingTypeRepositoryInterface::class,
-            \Core\Infrastructure\Persistence\EloquentTrainingTypeRepository::class
+            \FightGym\Application\Training\Ports\TrainingTypeRepositoryInterface::class,
+            \FightGym\Infrastructure\Persistence\EloquentTrainingTypeRepository::class
         );
         $this->app->bind(
-            \Core\Application\Training\Ports\TrainingClassRepositoryInterface::class,
-            \Core\Infrastructure\Persistence\EloquentTrainingClassRepository::class
+            \FightGym\Application\Training\Ports\TrainingClassRepositoryInterface::class,
+            \FightGym\Infrastructure\Persistence\EloquentTrainingClassRepository::class
         );
         $this->app->bind(
-            \Core\Application\Training\Ports\ScheduleRepositoryInterface::class,
-            \Core\Infrastructure\Persistence\EloquentScheduleRepository::class
+            \FightGym\Application\Training\Ports\ScheduleRepositoryInterface::class,
+            \FightGym\Infrastructure\Persistence\EloquentScheduleRepository::class
         );
         // Finance
         $this->app->bind(
-            \Core\Application\Finance\Ports\PlanRepositoryInterface::class,
-            \Core\Infrastructure\Persistence\EloquentPlanRepository::class
+            \FightGym\Application\Finance\Ports\PlanRepositoryInterface::class,
+            \FightGym\Infrastructure\Persistence\EloquentPlanRepository::class
         );
     }
 }

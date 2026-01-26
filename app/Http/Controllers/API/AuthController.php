@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Core\Application\Identity\UseCases\LoginUser;
-use Core\Application\Identity\UseCases\RegisterUser;
-use Core\Application\Identity\Ports\AuthenticationServiceInterface;
+use FightGym\Application\Identity\UseCases\LoginUser;
+use FightGym\Application\Identity\UseCases\RegisterUser;
+use FightGym\Application\Identity\Ports\AuthenticationServiceInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

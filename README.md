@@ -143,9 +143,9 @@ query GetAthleteHistory {
 ### The Port (Interface)
 Located in `src/Application/Training/Ports/AttendanceRepositoryInterface.php`:
 ```php
-namespace Core\Application\Training\Ports;
+namespace FightGym\Application\Training\Ports;
 
-use Core\Domain\Training\Entities\Attendance;
+use FightGym\Domain\Training\Entities\Attendance;
 
 interface AttendanceRepositoryInterface {
     public function save(Attendance $attendance): void;
@@ -156,10 +156,10 @@ interface AttendanceRepositoryInterface {
 ### The Adapter (Eloquent Implementation)
 Located in `src/Infrastructure/Persistence/EloquentAttendanceRepository.php`:
 ```php
-namespace Core\Infrastructure\Persistence;
+namespace FightGym\Infrastructure\Persistence;
 
-use Core\Application\Training\Ports\AttendanceRepositoryInterface;
-use Core\Domain\Training\Entities\Attendance as DomainAttendance;
+use FightGym\Application\Training\Ports\AttendanceRepositoryInterface;
+use FightGym\Domain\Training\Entities\Attendance as DomainAttendance;
 use App\Models\Attendance as EloquentModel; // Laravel Model
 
 class EloquentAttendanceRepository implements AttendanceRepositoryInterface {
@@ -178,8 +178,8 @@ Located in `app/Providers/RepositoryServiceProvider.php`:
 ```php
 public function register(): void {
     $this->app->bind(
-        \Core\Application\Training\Ports\AttendanceRepositoryInterface::class,
-        \Core\Infrastructure\Persistence\EloquentAttendanceRepository::class
+        \FightGym\Application\Training\Ports\AttendanceRepositoryInterface::class,
+        \FightGym\Infrastructure\Persistence\EloquentAttendanceRepository::class
     );
 }
 ```
@@ -249,3 +249,4 @@ We separate tests based on the Hexagonal layers:
 1.  **Domain First:** Always write the business logic in `src/Domain` before writing the Controller.
 2.  **Strict Typing:** PHP 8.2 strict typing is enforced.
 3.  **Commit Message:** Use Conventional Commits (feat, fix, chor, refactor).
+4. **Be regorous with this rule:** "It's totally forbidden usage of `use Illuminate\...;` or `use App\Models\...;` in src/Domain directory 

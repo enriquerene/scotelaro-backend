@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Core\Application\Training\UseCases\ListTrainingClasses;
+use FightGym\Application\Training\UseCases\ListTrainingClasses;
 use App\Models\Turma;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

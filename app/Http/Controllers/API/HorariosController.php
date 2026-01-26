@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Core\Application\Training\UseCases\ListSchedules;
+use FightGym\Application\Training\UseCases\ListSchedules;
 use App\Models\Horario;
 use Exception;
 use Illuminate\Http\Request;

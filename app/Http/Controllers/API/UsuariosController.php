@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Core\Application\Finance\UseCases\SubscribeToPlan;
-use Core\Application\Finance\UseCases\CancelPlan;
+use FightGym\Application\Finance\UseCases\SubscribeToPlan;
+use FightGym\Application\Finance\UseCases\CancelPlan;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,10 +27,10 @@ class UsuariosController extends Controller
     public function inscricaoEmPlano(Request $request): JsonResponse
     {
         $planoId = (int) $request->input('id');
-        $usuario = $request->get('usuario');
+        $usuario = $request->attributes->get('usuario');
 
         try {
-            $updatedUser = $this->subscribeToPlan->execute($usuario->uuid, $planoId);
+            $updatedUser = $this->subscribeToPlan->execute($usuario->getUuid(), $planoId);
 
             $rest = new ResponseTemplate(200);
             $response = $rest->build($updatedUser->toArray());
@@ -47,10 +47,10 @@ class UsuariosController extends Controller
      */
     public function cancelarPlano(Request $request): JsonResponse
     {
-        $usuario = $request->get('usuario');
+        $usuario = $request->attributes->get('usuario');
 
         try {
-            $updatedUser = $this->cancelPlan->execute($usuario->uuid);
+            $updatedUser = $this->cancelPlan->execute($usuario->getUuid());
 
             $rest = new ResponseTemplate(200);
             $response = $rest->build($updatedUser->toArray());

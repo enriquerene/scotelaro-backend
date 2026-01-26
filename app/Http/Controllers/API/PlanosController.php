@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Core\Application\Finance\UseCases\ListPlans;
+use FightGym\Application\Finance\UseCases\ListPlans;
 use App\Models\Plano;
 use App\Models\Turma;
 use Exception;
