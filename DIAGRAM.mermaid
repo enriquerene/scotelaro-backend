@@ -1,0 +1,37 @@
+erDiagram
+    USUARIO ||--o{ ALUNO : "funciona como"
+    USUARIO ||--o{ PROFESSOR : "é"
+    USUARIO ||--o{ INSCRICAOPLANO : "responsável por"
+    USUARIO ||--o{ INSCRICAOPLANO : "dependente em"
+    
+    ALUNO }o--|| PLANO : "possui"
+    
+    PLANO ||--o{ INSCRICAOPLANO : "vinculado a"
+    
+    PROFESSOR ||--o{ MODALIDADE : "ensina"
+    PROFESSOR ||--o{ TURMA : "leciona"
+    
+    TURMA }o--|| MODALIDADE : "é de"
+    TURMA }o--|| USUARIO : "professor é"
+    TURMA ||--o{ HORARIOTURMA : "tem"
+    TURMA }o--|| POSICAOTURMA : "ocupa"
+    TURMA ||--o{ INSCRICAOPLANO : "vinculada a"
+    
+    MODALIDADE ||--o{ TURMA : "oferece"
+    MODALIDADE ||--o{ PROFESSOR : "ensinada por"
+    
+    HORARIOTURMA }o--|| TURMA : "pertence a"
+    
+    POSICAOTURMA }o--|| POSICAOTURMTIPO : "é do tipo"
+    POSICAOTURMA ||--o{ TURMA : "contém"
+    
+    POSICAOTURMTIPO {
+        enum TATAME_ENTRADA
+        enum TATAME_FUNDO
+        enum OCTOGONO
+    }
+    
+    INSCRICAOPLANO }o--|| USUARIO : "responsável"
+    INSCRICAOPLANO }o--|| PLANO : "plano"
+    INSCRICAOPLANO ||--o{ TURMA : "turmas inscritas"
+    INSCRICAOPLANO ||--o{ USUARIO : "dependentes"
