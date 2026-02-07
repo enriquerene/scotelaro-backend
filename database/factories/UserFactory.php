@@ -23,12 +23,22 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // Generate Brazilian phone number format: +55 (11) 9XXXX-XXXX
+        $areaCode = fake()->randomElement(['11', '21', '31', '41', '51', '61', '71', '81', '91']);
+        $phoneNumber = '9' . fake()->numerify('####-####');
+        $fullPhone = "+55 ({$areaCode}) {$phoneNumber}";
+        
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'phone' => $fullPhone,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'role' => \App\Models\User::ROLE_STUDENT,
             'remember_token' => Str::random(10),
+            'two_factor_secret' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_confirmed_at' => null,
         ];
     }
 
@@ -39,6 +49,38 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the model has two-factor authentication configured.
+     */
+    public function withTwoFactor(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'two_factor_secret' => encrypt('secret'),
+            'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
+            'two_factor_confirmed_at' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the user has the staff role.
+     */
+    public function staff(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => \App\Models\User::ROLE_STAFF,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has the admin role.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => \App\Models\User::ROLE_ADMIN,
         ]);
     }
 }
